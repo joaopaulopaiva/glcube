@@ -11,8 +11,9 @@
 /* The number of our GLUT window */
 int window;
 
-/* Grid squares that will be colored */
-int colored[16];
+/* Grid squares that will be gridColors */
+int gridColors[16];
+int cubeColors[6];
 
 /* Cube initial psition */
 int cubePos;
@@ -46,7 +47,7 @@ void drawGrid() {
 	for (i=0; i<4; i++) {
 		glPushMatrix();
 		for (j=0; j<4; j++) {
-			if (colored[i*4+j] == 0) {
+			if (gridColors[i*4+j] == 0) {
 				drawRectangle(0.0f,0.0f, 0.0f, 1.0f, 1.0f);
 			} else {
 				drawRectangle(0.0f,0.0f, 1.0f, 1.0f, 1.0f);
@@ -87,25 +88,49 @@ void drawCube() {
 	}
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.5f);
-	drawRectangle(0.3f, 1.0f, 0.3f, 1.0f, 1.0f);
+	if (cubeColors[2] == 0) {
+		drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	} else {
+		drawRectangle(0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	}
 	glTranslatef(0.0f,0.0f,-1.0f);
-	drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	if (cubeColors[0] == 0) {
+		drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	} else {
+		drawRectangle(0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	}
 	glPopMatrix();
 
 	glPushMatrix();
 	glRotatef(90,0.0f,1.0f,0.0f);
 	glTranslatef(0.0f,0.0f,0.5f);
-	drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	if (cubeColors[5] == 0) {
+		drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	} else {
+		drawRectangle(0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	}
 	glTranslatef(0.0f,0.0f,-1.0f);
-	drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	if (cubeColors[4] == 0) {
+		drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	} else {
+		drawRectangle(0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	}
 	glPopMatrix();
 
 	glPushMatrix();
 	glRotatef(90,1.0f,0.0f,0.0f);
 	glTranslatef(0.0f,0.0f,0.5f);
-	drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	if (cubeColors[1] == 0) {
+		drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	} else {
+		drawRectangle(0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	}
 	glTranslatef(0.0f,0.0f,-1.0f);
-	drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	if (cubeColors[3] == 0) {
+		drawRectangle(0.3f, 0.3f, 0.3f, 1.0f, 1.0f);
+	} else {
+		drawRectangle(0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	}
 	glPopMatrix();
 }
 
@@ -113,6 +138,7 @@ void action(void)
 {
     // Animate the rotation
     float increment = 1.0f;
+    int i, last;
     switch (app_state.direction)
     {
     case 0:
@@ -121,7 +147,12 @@ void action(void)
         } else {
             app_state.upDown = 0.0f;
             cubePos -= 4;
-            colored[cubePos] = 0;
+            last = cubeColors[3];
+            for (i=3; i>0; i--) {
+               cubeColors[i] = cubeColors[i-1];
+            }
+            cubeColors[0] = last;
+/*            gridColors[cubePos] = 0;*/
             app_state.direction = -1;
         }
         break;
@@ -131,7 +162,12 @@ void action(void)
         } else {
             app_state.upDown = 0.0f;
             cubePos += 4;
-            colored[cubePos] = 0;
+            last = cubeColors[0];
+            for (i=0; i<3; i++) {
+               cubeColors[i] = cubeColors[i+1];
+            }
+            cubeColors[3] = last;
+/*            gridColors[cubePos] = 0;*/
             app_state.direction = -1;
         }
         break;
@@ -141,7 +177,12 @@ void action(void)
         } else {
             app_state.leftRight = 0.0f;
             cubePos -= 1;
-            colored[cubePos] = 0;
+/*            gridColors[cubePos] = 0;*/
+            last = cubeColors[0];
+            cubeColors[0] = cubeColors[4];
+            cubeColors[4] = cubeColors[2];
+            cubeColors[2] = cubeColors[5];
+            cubeColors[5] = last;
             app_state.direction = -1;
         }
         break;
@@ -151,7 +192,12 @@ void action(void)
         } else {
             app_state.leftRight = 0.0f;
             cubePos += 1;
-            colored[cubePos] = 0;
+/*            gridColors[cubePos] = 0;*/
+            last = cubeColors[0];
+            cubeColors[0] = cubeColors[5];
+            cubeColors[5] = cubeColors[2];
+            cubeColors[2] = cubeColors[4];
+            cubeColors[4] = last;
             app_state.direction = -1;
         }
         break;
@@ -250,16 +296,20 @@ int main(int argc, char **argv) {
   srand(time(NULL));
   int i, n;
   for (i=0; i<16; i++) {
-    colored[i] = 0;
+    gridColors[i] = 0;
   }
+  for (i=0; i<6; i++) {
+    cubeColors[i] = 0;
+  }
+  cubeColors[2] = 1;
   i = 0;
   while (i!=7) {
     n = rand() % 16;
-    if (colored[n] == 0) {
+    if (gridColors[n] == 0) {
       if (i == 6) {
         cubePos = n;
       } else {
-        colored[n] = 1;
+        gridColors[n] = 1;
       }
       i++;
     }
