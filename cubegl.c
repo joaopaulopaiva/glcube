@@ -14,12 +14,13 @@ int window;
 /* Grid squares that will be gridColors */
 int gridColors[16];
 int cubeColors[6];
+int finish;
 
 /* Cube initial psition */
 int cubePos;
 
 struct rot_state {
-    float leftRight, upDown;
+    float angle;
     int direction;
 } app_state;
 
@@ -64,22 +65,22 @@ void drawCube() {
 	switch (app_state.direction) {
 	case 0:
 		glTranslatef(cubePos%4, -cubePos/4+0.5f, 0.0f);
-		glRotatef(-app_state.upDown,1.0f,0.0f,0.0f);
+		glRotatef(-app_state.angle,1.0f,0.0f,0.0f);
 		glTranslatef(0.0f, -0.5f, 0.5f);
 		break;
 	case 1:
 		glTranslatef(cubePos%4, -cubePos/4-0.5f, 0.0f);
-		glRotatef(app_state.upDown,1.0f,0.0f,0.0f);
+		glRotatef(app_state.angle,1.0f,0.0f,0.0f);
 		glTranslatef(0.0f, 0.5f, 0.5f);
 		break;
 	case 2:
 		glTranslatef(cubePos%4-0.5f, -cubePos/4, 0.0f);
-		glRotatef(-app_state.leftRight,0.0f,1.0f,0.0f);
+		glRotatef(-app_state.angle,0.0f,1.0f,0.0f);
 		glTranslatef(0.5f, 0.0f, 0.5f);
 		break;
 	case 3:
 		glTranslatef(cubePos%4+0.5f, -cubePos/4, 0.0f);
-		glRotatef(app_state.leftRight,0.0f,1.0f,0.0f);
+		glRotatef(app_state.angle,0.0f,1.0f,0.0f);
 		glTranslatef(-0.5f, 0.0f, 0.5f);
 		break;
 	default:
@@ -142,59 +143,77 @@ void action(void)
     switch (app_state.direction)
     {
     case 0:
-        if (app_state.upDown <= 89.0f) {
-            app_state.upDown += increment;
+        if (app_state.angle <= 89.0f) {
+            app_state.angle += increment;
         } else {
-            app_state.upDown = 0.0f;
+            app_state.angle = 0.0f;
             cubePos -= 4;
+            app_state.direction = -1;
             last = cubeColors[3];
             for (i=3; i>0; i--) {
                cubeColors[i] = cubeColors[i-1];
             }
-            cubeColors[0] = last;
-/*            gridColors[cubePos] = 0;*/
-            app_state.direction = -1;
+            if (finish==0) {
+                cubeColors[0] = gridColors[cubePos];
+                gridColors[cubePos] = last;
+            } else {
+                cubeColors[0] = last;
+            }
         }
         break;
     case 1:
-        if (app_state.upDown <= 89.0f) {
-            app_state.upDown += increment;
+        if (app_state.angle <= 89.0f) {
+            app_state.angle += increment;
         } else {
-            app_state.upDown = 0.0f;
+            app_state.angle = 0.0f;
             cubePos += 4;
+            app_state.direction = -1;
             last = cubeColors[0];
-            for (i=0; i<3; i++) {
+            if (finish==0) {
+                cubeColors[0] = gridColors[cubePos];
+                gridColors[cubePos] = cubeColors[1];
+            } else {
+                cubeColors[0] = cubeColors[1];
+            }
+            for (i=1; i<3; i++) {
                cubeColors[i] = cubeColors[i+1];
             }
             cubeColors[3] = last;
-/*            gridColors[cubePos] = 0;*/
-            app_state.direction = -1;
         }
         break;
     case 2:
-        if (app_state.leftRight <= 89.0f) {
-            app_state.leftRight += increment;
+        if (app_state.angle <= 89.0f) {
+            app_state.angle += increment;
         } else {
-            app_state.leftRight = 0.0f;
+            app_state.angle = 0.0f;
             cubePos -= 1;
-/*            gridColors[cubePos] = 0;*/
+            app_state.direction = -1;
             last = cubeColors[0];
-            cubeColors[0] = cubeColors[4];
+            if (finish==0) {
+                cubeColors[0] = gridColors[cubePos];
+                gridColors[cubePos] = cubeColors[4];
+            } else {
+                cubeColors[0] = cubeColors[4];
+            }
             cubeColors[4] = cubeColors[2];
             cubeColors[2] = cubeColors[5];
             cubeColors[5] = last;
-            app_state.direction = -1;
         }
         break;
     case 3:
-        if (app_state.leftRight <= 89.0f) {
-            app_state.leftRight += increment;
+        if (app_state.angle <= 89.0f) {
+            app_state.angle += increment;
         } else {
-            app_state.leftRight = 0.0f;
+            app_state.angle = 0.0f;
             cubePos += 1;
-/*            gridColors[cubePos] = 0;*/
+            app_state.direction = -1;
             last = cubeColors[0];
-            cubeColors[0] = cubeColors[5];
+            if (finish==0) {
+                cubeColors[0] = gridColors[cubePos];
+                gridColors[cubePos] = cubeColors[5];
+            } else {
+                cubeColors[0] = cubeColors[5];
+            }
             cubeColors[5] = cubeColors[2];
             cubeColors[2] = cubeColors[4];
             cubeColors[4] = last;
@@ -204,7 +223,11 @@ void action(void)
     default:
         break;
     }
-
+    last = 1;
+    for (i=0; i<6;i++) {
+        last = last && cubeColors[i];
+    }
+    finish = last;
     glutPostRedisplay();
 }
 
@@ -212,8 +235,8 @@ void action(void)
 void InitGL(int Width, int Height)	        // We call this right after our OpenGL window is created.
 {
   app_state.direction = -1;
-  app_state.upDown = 0.0f;
-  app_state.leftRight = 0.0f;
+  app_state.angle = 0.0f;
+  app_state.angle = 0.0f;
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);		// This Will Clear The Background Color To Black
   glClearDepth(1.0);				// Enables Clearing Of The Depth Buffer
   glDepthFunc(GL_LESS);				// The Type Of Depth Test To Do
@@ -301,7 +324,7 @@ int main(int argc, char **argv) {
   for (i=0; i<6; i++) {
     cubeColors[i] = 0;
   }
-  cubeColors[2] = 1;
+  finish = 0;
   i = 0;
   while (i!=7) {
     n = rand() % 16;
