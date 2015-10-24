@@ -25,5 +25,5 @@ To compile this code, use:
 And execute with:
 `./glCube`
 
-[1] (http://www3.sympatico.ca/paulscott/cube/cube.htm)
-[2] (http://www.chiark.greenend.org.uk/~sgtatham/puzzles/doc/cube.html)
+\[1\] (http://www3.sympatico.ca/paulscott/cube/cube.htm)
+\[2\] (http://www.chiark.greenend.org.uk/~sgtatham/puzzles/doc/cube.html)
