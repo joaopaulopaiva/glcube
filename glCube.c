@@ -113,6 +113,7 @@ void printToScene(char *string) {
 
 void printText() {
 
+	char strMoves[15];
 	glPushMatrix();
 	glTranslatef(-2.8f,0.5f,0.0f);
 	printToScene("Use arrow keys to move the cube and colect all the paint.");
@@ -121,9 +122,12 @@ void printText() {
 	glTranslatef(0.0f,-0.1f,0.0f);
 	printToScene("Press 'Esc' to exit.");
 	glTranslatef(0.0f,-0.1f,0.0f);
-	char strMoves[15];
 	sprintf(strMoves,"Moves: %d",moves);
 	printToScene(strMoves);
+	glTranslatef(0.0f,-0.1f,0.0f);
+	if (finish == 1) {
+		printToScene("Completed!");
+	}
 	glPopMatrix();
 }
 
