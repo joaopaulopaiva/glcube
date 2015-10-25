@@ -3,9 +3,8 @@
 #include <GL/glu.h>	// Header file for the GLu32 library
 #include <unistd.h>	// Header file for sleeping
 #include <time.h>		// Header file for random generation of the game
-
-/* ASCII code for the escape key */
-#define ESCAPE 27
+#include <string.h>	// Header file for string operations
+#include <stdio.h>	// Header file for sprintf function
 
 /* Number of the GLUT window */
 int window;
@@ -14,11 +13,14 @@ int window;
 int gridColors[16];
 int cubeColors[6];
 
+/* Cube initial psition */
+int cubePos;
+
 /* State of the game, finished/not finished */
 int finish;
 
-/* Cube initial psition */
-int cubePos;
+/* Number of moves made */
+int moves;
 
 /* Angle and direction of the cube's rotation */
 struct rot_state {
@@ -98,6 +100,33 @@ void rotateCube() {
 	}
 }
 
+void printToScene(char *string) {
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glRasterPos2f(0, 0);
+	int len, i;
+	len = (int)strlen(string);
+	for (i = 0; i < len; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[i]);
+	}
+}
+
+void printText() {
+
+	glPushMatrix();
+	glTranslatef(-2.8f,0.5f,0.0f);
+	printToScene("Use arrow keys to move the cube and colect all the paint.");
+	glTranslatef(0.0f,-0.1f,0.0f);
+	printToScene("Press 'n' for new game.");
+	glTranslatef(0.0f,-0.1f,0.0f);
+	printToScene("Press 'Esc' to exit.");
+	glTranslatef(0.0f,-0.1f,0.0f);
+	char strMoves[15];
+	sprintf(strMoves,"Moves: %d",moves);
+	printToScene(strMoves);
+	glPopMatrix();
+}
+
 void drawCube() {
 
 	rotateCube();
@@ -153,7 +182,7 @@ void drawCube() {
 void action(void) {
 
 	// Animate the rotation
-	float increment = 1.0f;
+	float increment = 0.8f;
 	int i, last;
 	switch (cube_state.direction) {
 	case 0:
@@ -162,6 +191,7 @@ void action(void) {
 		} else {
 			cube_state.angle = 0.0f;
 			cubePos -= 4;
+			moves++;
 			cube_state.direction = -1;
 			last = cubeColors[3];
 			for (i=3; i>0; i--) {
@@ -182,6 +212,7 @@ void action(void) {
 			cube_state.angle = 0.0f;
 			cubePos += 4;
 			cube_state.direction = -1;
+			moves++;
 			last = cubeColors[0];
 			if (finish==0) {
 				cubeColors[0] = gridColors[cubePos];
@@ -202,6 +233,7 @@ void action(void) {
 			cube_state.angle = 0.0f;
 			cubePos -= 1;
 			cube_state.direction = -1;
+			moves++;
 			last = cubeColors[0];
 			if (finish==0) {
 				cubeColors[0] = gridColors[cubePos];
@@ -221,6 +253,7 @@ void action(void) {
 			cube_state.angle = 0.0f;
 			cubePos += 1;
 			cube_state.direction = -1;
+			moves++;
 			last = cubeColors[0];
 			if (finish==0) {
 				cubeColors[0] = gridColors[cubePos];
@@ -298,56 +331,26 @@ void DrawGLScene() {
 	
 	glPushMatrix();
 	glTranslatef(-1.5f,1.5f,-6.0f);
+	printText();
 	drawGrid();
 	drawCube();
+
 	glPopMatrix();
 	glutSwapBuffers();
 }
 
-/* Function called whenever a key is pressed */
-void keyPressed(unsigned char key, int x, int y) {
-
-	usleep(100);
-	switch (key) {
-	case 27:
-		glutDestroyWindow(window); 
-		exit(0);
-		break;
-	case 'w':
-		if (cubePos > 3) {
-			cube_state.direction = 0;
-		}
-		break;
-	case 's':
-		if (cubePos < 12) {
-			cube_state.direction = 1;
-		}
-		break;
-	case 'a':
-		if (cubePos%4 != 0) {
-			cube_state.direction = 2;
-		}
-		break;
-	case 'd':
-		if (cubePos%4 != 3) {
-			cube_state.direction = 3;
-		}
-		break;
-	}
-	glutPostRedisplay();
-}
-
-int main(int argc, char **argv) {
+void newGame() {
 
 	srand(time(NULL));
 	int i, n;
+	finish = 0;
+	moves = 0;
 	for (i=0; i<16; i++) {
 		gridColors[i] = 0;
 	}
 	for (i=0; i<6; i++) {
 		cubeColors[i] = 0;
 	}
-	finish = 0;
 	i = 0;
 	while (i!=7) {
 		n = rand() % 16;
@@ -360,7 +363,56 @@ int main(int argc, char **argv) {
 			i++;
 		}
 	}
-	
+}
+
+/* Function called whenever a key is pressed */
+void keyPressed(unsigned char key, int x, int y) {
+
+	switch (key) {
+	case 27:
+		glutDestroyWindow(window); 
+		exit(0);
+		break;
+	case 'n':
+		newGame();
+		glutPostRedisplay();
+	default:
+		break;
+	}
+}
+
+/* Function called whenever a special key is pressed */
+void specialPressed(int key, int x, int y) {
+
+	usleep(100);
+	switch (key) {
+	case GLUT_KEY_UP:
+		if (cubePos > 3) {
+			cube_state.direction = 0;
+		}
+		break;
+	case GLUT_KEY_DOWN:
+		if (cubePos < 12) {
+			cube_state.direction = 1;
+		}
+		break;
+	case GLUT_KEY_LEFT:
+		if (cubePos%4 != 0) {
+			cube_state.direction = 2;
+		}
+		break;
+	case GLUT_KEY_RIGHT:
+		if (cubePos%4 != 3) {
+			cube_state.direction = 3;
+		}
+		break;
+	}
+	glutPostRedisplay();
+}
+
+int main(int argc, char **argv) {
+
+	newGame();
 	// Initialize GLUT state
 	glutInit(&argc, argv);
 	
@@ -384,7 +436,7 @@ int main(int argc, char **argv) {
 	glutDisplayFunc(&DrawGLScene);
 	
 	// Go fullscreen
-	//glutFullScreen();
+	glutFullScreen();
 	
 	// Redraw the gl scene
 	glutIdleFunc(&action);
@@ -394,6 +446,7 @@ int main(int argc, char **argv) {
 	
 	// Register the function called when the keyboard is pressed
 	glutKeyboardFunc(&keyPressed);
+	glutSpecialFunc(specialPressed);
 	
 	// Initialize the window
 	InitGL(640, 480);
