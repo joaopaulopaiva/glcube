@@ -195,13 +195,13 @@ void action(void) {
 		} else {
 			cube_state.angle = 0.0f;
 			cubePos -= 4;
-			moves++;
 			cube_state.direction = -1;
 			last = cubeColors[3];
 			for (i=3; i>0; i--) {
 				cubeColors[i] = cubeColors[i-1];
 			}
 			if (finish==0) {
+				moves++;
 				cubeColors[0] = gridColors[cubePos];
 				gridColors[cubePos] = last;
 			} else {
@@ -216,9 +216,9 @@ void action(void) {
 			cube_state.angle = 0.0f;
 			cubePos += 4;
 			cube_state.direction = -1;
-			moves++;
 			last = cubeColors[0];
 			if (finish==0) {
+				moves++;
 				cubeColors[0] = gridColors[cubePos];
 				gridColors[cubePos] = cubeColors[1];
 			} else {
@@ -237,9 +237,9 @@ void action(void) {
 			cube_state.angle = 0.0f;
 			cubePos -= 1;
 			cube_state.direction = -1;
-			moves++;
 			last = cubeColors[0];
 			if (finish==0) {
+				moves++;
 				cubeColors[0] = gridColors[cubePos];
 				gridColors[cubePos] = cubeColors[4];
 			} else {
@@ -257,9 +257,9 @@ void action(void) {
 			cube_state.angle = 0.0f;
 			cubePos += 1;
 			cube_state.direction = -1;
-			moves++;
 			last = cubeColors[0];
 			if (finish==0) {
+				moves++;
 				cubeColors[0] = gridColors[cubePos];
 				gridColors[cubePos] = cubeColors[5];
 			} else {
